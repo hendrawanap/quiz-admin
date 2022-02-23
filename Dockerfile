@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY ./ .
+ARG VUE_APP_API_ADDRESS
+ENV VUE_APP_API_ADDRESS=${VUE_APP_API_ADDRESS}
 RUN npm run build
 
 FROM nginx as production-stage
