@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-lg-6 mx-auto">
         <h1 class="mb-3">Edit Pertanyaan</h1>
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" enctype="multipart/form-data">
           <div class="mb-3">
             <label for="question" class="form-label">Question</label>
             <input type="text" class="form-control" id="question" v-model="question.question" required />
@@ -105,21 +105,22 @@ export default {
   },
   methods: {
     submit() {
-      console.log(this.question)
       const formData = new FormData()
-      formData.append('question', this.question.question)
-      formData.append('answer', this.question.answer)
-      formData.append('topic', this.question.topic)
-      formData.append('choices', JSON.stringify(this.question.choices))
-      formData.append('file', this.question.file)
-      axios.put(this.$apiAddress + '/questions/' + this.$route.params.id, formData).then(r => {
-        console.log(r.data)
+      formData.append('json', JSON.stringify({
+        question: this.question.question,
+        answer: this.question.answer,
+        choices: this.question.choices,
+        topic: this.question.topic,
+      }))
+      this.question.file ? formData.append('imgFile', this.question.file) : null
+      axios.put(this.$apiAddress + '/questions/' + this.$route.params.id, formData).then(({data}) => {
+        console.log(data)
         this.$router.push('/')
-      })
+      }).catch((error) => console.log(error.message));
     },
     fetchPertanyaan() {
-      axios.get(this.$apiAddress + '/questions/' + this.$route.params.id).then(r => {
-        const { question, answer, choices, topic } = r.data.data
+      axios.get(this.$apiAddress + '/questions/' + this.$route.params.id).then(({data}) => {
+        const { question, answer, choices, topic } = data
         this.question.question = question
         this.question.answer = answer
         this.question.choices = choices
